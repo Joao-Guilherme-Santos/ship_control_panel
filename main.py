@@ -3,6 +3,10 @@ from tqdm import tqdm
 import random
 from colorama import Fore, Style, init
 
+def limpar_linha():
+        print("\r\033[K", end='')  # Apaga a linha atual inteira
+
+
 #Função para simular a despressurização de uma porta 
 def despressurizar(porta):
 
@@ -123,8 +127,52 @@ class SuporteDeVida:
 
 
 
-# Execução de teste
+class PainelSimulacao:
+    def __init__(self):
+        self.combustivel = 1000     # litros
+        self.distancia = 500        # km até Marte
+        self.velocidade = 0         # km/h
+        self.linhas_fixas = 6       # Linhas do painel
+        self.tempo_intervalo = 5    # segundos (simulando 5 minutos)
+
+    
+    def imprimir_tabela(self):
+        limpar_linha()
+        print("=== PAINEL DE COMANDO - VIAGEM AUTOMÁTICA ===")
+        limpar_linha()
+        print(f"Velocidade Atual        --> {Fore.CYAN}{self.velocidade} km/h{Style.RESET_ALL}")
+        limpar_linha()
+        print(f"Combustível Restante    --> {Fore.YELLOW}{self.combustivel} L{Style.RESET_ALL}")
+        limpar_linha()
+        print(f"Distância até Marte     --> {Fore.GREEN}{self.distancia} km{Style.RESET_ALL}")
+        limpar_linha()
+        print("===============================================")
+
+    def atualizar_tabela(self):
+        print(f"\033[{self.linhas_fixas}F", end='')  # Sobe até o topo da tabela
+        self.imprimir_tabela()
+
+    def atualizar_variaveis(self):
+        # velocidade aleatória entre 10 e 50 km/h
+        self.velocidade = random.randint(10, 50)
+        gasto = self.velocidade * 2
+
+        self.combustivel = max(0, self.combustivel - gasto)
+        self.distancia = max(0, self.distancia - self.velocidade)
+
+    def iniciar(self):
+        self.atualizar_variaveis()
+        self.imprimir_tabela()
+
+        while self.combustivel > 0 and self.distancia > 0:
+            time.sleep(self.tempo_intervalo)
+            self.atualizar_variaveis()
+            self.atualizar_tabela()
+
+        print("\n\033[2K" + Fore.MAGENTA + "Missão finalizada! Destino alcançado ou combustível esgotado." + Style.RESET_ALL)
+
+
+# Execução da simulação
 if __name__ == "__main__":
-    tripulantes = ["Alice", "Bruno", "Carla", "Diego"]
-    modulo = SuporteDeVida(tripulantes)
-    modulo.monitorar(ciclos=10, intervalo=2)  # 3 ciclos, 3 segundos entre cada
+    painel = PainelSimulacao()
+    painel.iniciar()
